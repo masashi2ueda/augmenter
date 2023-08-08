@@ -22,28 +22,28 @@ class Augmenter:
             self,
             org_img_p: float = 0.5,
             is_horizontal_flip: bool = True,
-            is_vetical_flip: bool = True,
+            is_vertical_flip: bool = True,
             is_rotate_90: bool = True,
             is_rotate_180: bool = True,
             is_rotate_270: bool = True,
             is_crop: bool = True,
             crop_scale_min: float = 0.5,
             crop_scale_max: float = 1.0,
-            is_multiple: float = False
+            is_multiple: bool = False
     ) -> None:
         """_summary_
 
         Args:
             org_img_p (float, optional): _description_. Defaults to 0.5.
             is_horizontal_flip (bool, optional): _description_. Defaults to True.
-            is_vetical_flip (bool, optional): _description_. Defaults to True.
+            is_vertical_flip (bool, optional): _description_. Defaults to True.
             is_rotate_90 (bool, optional): _description_. Defaults to True.
             is_rotate_180 (bool, optional): _description_. Defaults to True.
             is_rotate_270 (bool, optional): _description_. Defaults to True.
             is_crop (bool, optional): _description_. Defaults to True.
             crop_scale_min (float, optional): _description_. Defaults to 0.5.
             crop_scale_max (float, optional): _description_. Defaults to 1.0.
-            is_multiple (float, optional): _description_. Defaults to False.
+            is_multiple (bool, optional): _description_. Defaults to False.
 
         Examples:
             >>> w = 50
@@ -83,7 +83,7 @@ class Augmenter:
         transform_dict = {}
         if is_horizontal_flip:
             transform_dict["RandomHorizontalFlip"] = T.RandomHorizontalFlip(1)
-        if is_vetical_flip:
+        if is_vertical_flip:
             transform_dict["RandomVerticalFlip"] = T.RandomVerticalFlip(1)
         if is_rotate_90:
             transform_dict["RandomRotation90"] = T.RandomRotation(degrees=[90, 90])
@@ -98,13 +98,16 @@ class Augmenter:
         self.is_multiple = is_multiple
 
     def transform(self, verbose, *x_chw):
+        keys = list(self.transform_dict.keys())
+
+        if len(keys) == 0:
+            return x_chw
 
         if torch.rand(1)[0] < self.org_img_p:
             if verbose:
                 print("out put org image")
             return x_chw
-        
-        keys = list(self.transform_dict.keys())
+
         if self.is_multiple:
             size = np.random.randint(1, len(keys))
         else:
